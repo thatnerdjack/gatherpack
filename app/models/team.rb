@@ -126,12 +126,12 @@ class Team < ApplicationRecord
 
   private
 
-  # Runs inside the transaction `save` opens, so a team that fails validation
-  # doesn't leave a stray team type behind.
+  # The new type is only built here — `belongs_to` autosaves it once the team
+  # itself is valid, so a team that fails validation leaves nothing behind.
   def resolve_new_team_type
     name = new_team_type_name.to_s.strip
     return if name.blank?
 
-    self.team_type = TeamType.where("lower(name) = ?", name.downcase).first || TeamType.create(name: name)
+    self.team_type = TeamType.where("lower(name) = ?", name.downcase).first || TeamType.new(name: name)
   end
 end

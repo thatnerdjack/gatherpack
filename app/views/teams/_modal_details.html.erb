@@ -22,7 +22,7 @@
         <% team.managers.order(display_name: :asc).each do |person| %>
           <div class="p-1">
             <%= link_to person, title: person.display_name, data: { turbo_frame: "_top" } do %>
-              <%= image_tag get_avatar_url_64(person.avatar), class: "person-img" %>
+              <%= image_tag get_avatar_url_64(person.avatar), class: "person-img team-avatar" %>
             <% end %>
           </div>
         <% end %>

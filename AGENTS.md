@@ -104,10 +104,18 @@ Anything initialised on `turbo:load` will not run for content fetched into a
 frame — hook `turbo:frame-load` as well (see `wireFancyColorInputs` in
 `application.js`). Stimulus controllers connect normally either way.
 
-Type records (`TeamType`) are picked with `tag_select_controller.js`: existing
-records render as pills, and a name typed inline is created with its parent in
-one submission via a `new_<type>_name` virtual attribute. Permit that attribute
-only when the current user is allowed to create the type on its own.
+Type records (`TeamType`) are picked with the `creatable_combobox` simple_form
+input, which wraps `hotwire_combobox`. Typing a name that matches nothing
+switches the hidden field from the foreign key to `name_when_new`, and a
+`new_<type>_name` virtual attribute on the model builds the record so
+`belongs_to` autosaves it with its parent — nothing is created if the parent
+fails validation. Pass `name_when_new` only when the current user is allowed to
+create the type on its own, and permit the matching attribute in the controller
+and policy on the same condition.
+
+Index pages lay their records out as a grid (`<div id="teams" class="row g-3">`).
+The grid cell is part of the record partial, not the page, so a turbo stream can
+add, replace or remove a whole cell.
 
 ## Settings system
 

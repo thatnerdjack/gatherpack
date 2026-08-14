@@ -1,0 +1,26 @@
+// Teams are laid out as a grid of cards. `.card` extends the `.my-2` utility,
+// which is `!important`, so matching the cards' heights to their grid cell
+// takes the same weight.
+.team-card {
+  height: 100%;
+  margin: 0 !important;
+}
+
+// `.person-img` only sets an aspect ratio; every caller sizes it. The card
+// footer and the modal both lay avatars out with flex-wrap rather than a grid,
+// so they need an explicit one.
+.team-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.team-card-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}

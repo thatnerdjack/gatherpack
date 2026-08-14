@@ -41,7 +41,28 @@ class TeamsModalTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "turbo-frame#team_modal"
     assert_select "turbo-frame#team_modal .modal-footer button", text: /Create Team/
-    assert_select ".tag-select-option", text: "Scouts"
+    assert_select "input#team_team_type_id[role=combobox]"
+    assert_select "[role=option]", text: "Scouts"
+  end
+
+  test "the team type combobox can name a new type when the user may create them" do
+    get new_team_url, headers: FRAME_HEADER
+
+    assert_response :success
+    assert_select "fieldset.hw-combobox[data-hw-combobox-name-when-new-value=?]", "team[new_team_type_name]"
+  end
+
+  test "the team type combobox is restricted to existing types otherwise" do
+    manager = User.create!(email: "modal-picker@example.com", password: "password123")
+    person = Person.create!(user: manager, first_name: "Mo", last_name: "Manager", display_name: "Mo Manager")
+    Membership.create!(team: @team, person: person, manager: true)
+    sign_in manager
+
+    get new_team_url, headers: FRAME_HEADER
+
+    assert_response :success
+    assert_select "input#team_team_type_id[role=combobox]"
+    assert_select "[data-hw-combobox-name-when-new-value]", false
   end
 
   test "new still renders the full page outside a frame" do
@@ -75,7 +96,7 @@ class TeamsModalTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "turbo-frame#team_modal .modal-title", text: /Editing Pack 42/
-    assert_select ".tag-select-option.active", false, "selection is applied client side"
+    assert_select "input#team_team_type_id-hw-hidden-field[value=?]", @team_type.id
   end
 
   # --- create --------------------------------------------------------------
@@ -90,6 +111,8 @@ class TeamsModalTest < ActionDispatch::IntegrationTest
     assert_match %r{<turbo-stream action="prepend" target="teams">}, response.body
     assert_match "Trail Blazers", response.body
     assert_match %r{<turbo-stream action="prepend" target="flash-messages">}, response.body
+    # The grid cell is part of the card partial so streams move whole cells.
+    assert_match %r{<div class="col-12 col-sm-6 col-xl-4" id="team_}, response.body
   end
 
   test "non-modal create still redirects to the team" do
@@ -98,7 +121,7 @@ class TeamsModalTest < ActionDispatch::IntegrationTest
     assert_redirected_to team_url(Team.find_by(name: "Trail Blazers"))
   end
 
-  test "modal create builds a team type named in the tag picker" do
+  test "modal create builds a team type named in the picker" do
     assert_difference([ "Team.count", "TeamType.count" ], 1) do
       post teams_url, params: { modal: "1", team: { name: "Trail Blazers", color: "#3584e4", new_team_type_name: "Adventure Crew" } }
     end

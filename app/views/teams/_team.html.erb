@@ -1,31 +1,35 @@
-<div class="card" id="<%= dom_id team %>">
-  <div class="card-header fs-4" style="background-color: <%= team.display_color %>;">
-    <%= link_to team, style: "color: #{contrasting_color(team.display_color)}", data: { turbo_frame: "team_modal" } do %>
-      <%= i team.identifier_icon %> <%= team.name %>
-    <% end %>
-  </div>
-  <div class="card-body">
-    <div class="row align-items-center">
-      <div class="col-4 col-md-1 text-end">
-        <div><%= i "users" %> <%= team.descendant_people.count %></div>
-        <div><%= i "user-tie" %> <%= team.all_managers_and_admins.count %></div>
+<%# The column is part of the partial so turbo streams can add, replace and
+    remove a whole grid cell. %>
+<div class="col-12 col-sm-6 col-xl-4" id="<%= dom_id team %>">
+  <div class="card team-card">
+    <div class="card-header fs-5 text-break" style="background-color: <%= team.display_color %>;">
+      <%= link_to team, style: "color: #{contrasting_color(team.display_color)}", data: { turbo_frame: "team_modal" } do %>
+        <%= i team.identifier_icon %> <%= team.name %>
+      <% end %>
+    </div>
+
+    <div class="card-body">
+      <div class="badge-container mb-2">
+        <span class="badge bg-secondary"><%= team.team_type.name %></span>
+        <span class="badge bg-secondary" title="Members"><%= i "users" %> <%= team.descendant_people.count %></span>
+        <span class="badge bg-secondary" title="Managers"><%= i "user-tie" %> <%= team.all_managers_and_admins.count %></span>
       </div>
 
-      <div class="col-8 col-md-7">
-        <%= md team.description %>
-      </div>
+      <% if team.description.present? %>
+        <div class="team-card-description"><%= md team.description %></div>
+      <% end %>
+    </div>
 
-      <div class="col-4 col-md-4">
-        <small class="fw-bold"><%= pluralize team.managers.count, team.team_type.manager_title %></small>
-        <div class="row">
-          <% team.managers.order(display_name: :asc).each do |person| %>
-            <div class="col-6 col-md-2">
-              <%= link_to person, title: person.display_name, data: { turbo: false } do %>
-                <%= image_tag get_avatar_url_64(person.avatar), class: "person-img my-1" %>
-              <% end %>
-            </div>
-          <% end %>
-        </div>
+    <div class="card-footer">
+      <small class="fw-bold"><%= pluralize team.managers.count, team.team_type.manager_title %></small>
+      <div class="d-flex flex-row align-items-center flex-wrap">
+        <% team.managers.order(display_name: :asc).each do |person| %>
+          <div class="pe-1 py-1">
+            <%= link_to person, title: person.display_name, data: { turbo: false } do %>
+              <%= image_tag get_avatar_url_64(person.avatar), class: "person-img team-avatar" %>
+            <% end %>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>
