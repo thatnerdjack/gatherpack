@@ -1,0 +1,18 @@
+<%# Shell for a modal whose contents are fetched into a turbo frame.
+
+    Any link with `data-turbo-frame="<frame_id>"` loads its response into the
+    frame, which opens the modal. The fetched template supplies the modal's
+    header/body/footer and must wrap itself in `turbo_frame_tag <frame_id>`.
+    The dialog itself stays put because Bootstrap resolves `.modal-dialog` once,
+    when the modal is constructed.
+
+    Successful form submissions inside the frame close the modal, so the
+    create/update actions only need to render the turbo streams that refresh
+    whatever the modal changed. %>
+<div class="modal fade" id="<%= frame_id %>-modal" tabindex="-1" aria-hidden="true" data-controller="remote-modal">
+  <div class="modal-dialog <%= local_assigns.fetch(:dialog_class, "modal-lg modal-dialog-scrollable") %>">
+    <div class="modal-content">
+      <%= turbo_frame_tag frame_id %>
+    </div>
+  </div>
+</div>

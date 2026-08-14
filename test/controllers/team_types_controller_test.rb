@@ -17,7 +17,7 @@ class TeamTypesControllerTest < ActionDispatch::IntegrationTest
 
   test "should create team_type" do
     assert_difference("TeamType.count") do
-      post team_types_url, params: { team_type: { icon: @team_type.icon, name: @team_type.name } }
+      post team_types_url, params: { team_type: { name: @team_type.name } }
     end
 
     assert_redirected_to team_type_url(TeamType.last)
@@ -34,7 +34,7 @@ class TeamTypesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update team_type" do
-    patch team_type_url(@team_type), params: { team_type: { icon: @team_type.icon, name: @team_type.name } }
+    patch team_type_url(@team_type), params: { team_type: { name: @team_type.name } }
     assert_redirected_to team_type_url(@team_type)
   end
 

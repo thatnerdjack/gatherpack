@@ -1,4 +1,8 @@
 class TeamsController < InternalController
+  include ModalResponses
+
+  MODAL_FRAME = "team_modal".freeze
+
   before_action :set_team, only: %i[show edit update destroy badges pages events applications]
 
   # GET /teams
@@ -18,6 +22,8 @@ class TeamsController < InternalController
   # GET /teams/1
   def show
     @is_member = current_user.admin? || current_user.architect? || @team.people.include?(current_user.person)
+    return render partial: "teams/modal_details", locals: { team: @team } if modal_frame_request?(MODAL_FRAME)
+
     render "show_public" unless @is_member
     if GatherPack::Features.enabled?(:qa)
       @recent_questions = @team.questions.where(closed: false).order(created_at: :desc).limit(5)
@@ -47,10 +53,13 @@ class TeamsController < InternalController
   # GET /teams/new
   def new
     @team = authorize Team.new
+    render partial: "teams/modal_form", locals: { team: @team } if modal_frame_request?(MODAL_FRAME)
   end
 
   # GET /teams/1/edit
   def edit
+    authorize @team
+    render partial: "teams/modal_form", locals: { team: @team } if modal_frame_request?(MODAL_FRAME)
   end
 
   # POST /teams
@@ -58,7 +67,16 @@ class TeamsController < InternalController
     @team = authorize Team.new(team_params)
 
     if @team.save
-      redirect_to @team, notice: "Team was successfully created."
+      if modal_submission?
+        render turbo_stream: [
+          turbo_stream.prepend("teams", partial: "teams/team", locals: { team: @team }),
+          modal_flash("success", "Team was successfully created.")
+        ]
+      else
+        redirect_to @team, notice: "Team was successfully created."
+      end
+    elsif modal_submission?
+      render partial: "teams/modal_form", locals: { team: @team }, status: :unprocessable_entity
     else
       render :new, status: :unprocessable_entity
     end
@@ -67,7 +85,16 @@ class TeamsController < InternalController
   # PATCH/PUT /teams/1
   def update
     if authorize(@team).update(permitted_attributes(@team))
-      redirect_to @team, notice: "Team was successfully updated.", status: :see_other
+      if modal_submission?
+        render turbo_stream: [
+          turbo_stream.replace(@team, partial: "teams/team", locals: { team: @team }),
+          modal_flash("success", "Team was successfully updated.")
+        ]
+      else
+        redirect_to @team, notice: "Team was successfully updated.", status: :see_other
+      end
+    elsif modal_submission?
+      render partial: "teams/modal_form", locals: { team: @team }, status: :unprocessable_entity
     else
       render :edit, status: :unprocessable_entity
     end
@@ -75,8 +102,17 @@ class TeamsController < InternalController
 
   # DELETE /teams/1
   def destroy
+    authorize @team
     @team.destroy!
-    redirect_to teams_url, notice: "Team was successfully destroyed.", status: :see_other
+
+    if modal_submission?
+      render turbo_stream: [
+        turbo_stream.remove(@team),
+        modal_flash("success", "Team was successfully destroyed.")
+      ]
+    else
+      redirect_to teams_url, notice: "Team was successfully destroyed.", status: :see_other
+    end
   end
 
   private
@@ -90,6 +126,11 @@ class TeamsController < InternalController
 
   # Only allow a list of trusted parameters through.
   def team_params
-    params.require(:team).permit(:name, :parent_id, :color, :description, :team_type_id, :join_permission, person_ids: [])
+    permitted = [ :name, :parent_id, :color, :description, :team_type_id, :join_permission, person_ids: [] ]
+    # The tag picker can name a type that doesn't exist yet, but only for
+    # people who are allowed to create team types in the first place.
+    permitted.unshift(:new_team_type_name) if TeamTypePolicy.new(current_user, TeamType).create?
+
+    params.require(:team).permit(*permitted)
   end
 end

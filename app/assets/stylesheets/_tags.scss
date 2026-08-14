@@ -1,0 +1,29 @@
+// Tag-style single-choice picker — see tag_select_controller.js
+.tag-select {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  min-height: 2.25rem;
+}
+
+.tag-select-option {
+  border: thin solid var(--pair-a-fg);
+  border-radius: 10rem;
+  background-color: transparent;
+  color: inherit;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--pair-a-fg), transparent 85%);
+  }
+
+  &.active {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: var(--pair-b-fg);
+  }
+}
+
+.tag-select-new {
+  max-width: 24rem;
+}

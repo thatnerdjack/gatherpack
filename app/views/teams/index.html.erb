@@ -25,7 +25,7 @@
     </div>
   </div>
   <div class="card-footer">
-    <%= link_to "New Team", new_team_path, class: "btn btn-success" if policy(Team).new? %>
+    <%= link_to "New Team", new_team_path, class: "btn btn-success", data: { turbo_frame: "team_modal" } if policy(Team).new? %>
     <%= f.submit "Search", class: "btn btn-primary", data: { action: "turbo_search#search" } %>
     <%= link_to "Clear Search", request.path, class: "btn btn-dark", data: { action: "turbo_search#clear" } %>
   </div>
@@ -51,3 +51,5 @@
 
   <%= paginate @teams %>
 <% end %>
+
+<%= render "shared/remote_modal", frame_id: "team_modal" %>

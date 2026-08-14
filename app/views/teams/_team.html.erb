@@ -1,7 +1,7 @@
 <div class="card" id="<%= dom_id team %>">
-  <div class="card-header fs-4" style="background-color: <%= team.color %>;">
-    <%= link_to team, style: "color: #{contrasting_color(team.color)}", "data-turbo": "false" do %>
-      <%= i team.team_type.icon %> <%= team.name %>
+  <div class="card-header fs-4" style="background-color: <%= team.display_color %>;">
+    <%= link_to team, style: "color: #{contrasting_color(team.display_color)}", data: { turbo_frame: "team_modal" } do %>
+      <%= i team.identifier_icon %> <%= team.name %>
     <% end %>
   </div>
   <div class="card-body">

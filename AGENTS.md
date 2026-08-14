@@ -80,6 +80,35 @@ bin/rails generate breadcrumb Foo           # breadcrumb config only
 
 Templates live in `lib/templates/`.
 
+## Remote modals
+
+Teams are created, viewed and edited from a modal on the index rather than from
+separate `new` / `show` / `edit` pages. The pieces:
+
+- `shared/_remote_modal` renders the modal shell around an empty turbo frame.
+  Put it on the index page once, outside the search results frame.
+- Any link with `data-turbo-frame="<frame_id>"` loads its response into that
+  frame, which opens the modal (`remote_modal_controller.js`). The frame is
+  emptied on close, so reopening always refetches.
+- The controller renders a modal partial when `modal_frame_request?(FRAME)` is
+  true and falls through to the normal template otherwise, so `/teams/new` and
+  the full team page still work for direct navigation and deep links.
+- Forms in the modal carry a hidden `modal=1`. When `modal_submission?` is true,
+  create/update/destroy answer with turbo streams that add, replace or remove
+  the card plus a flash, instead of redirecting. A successful submit closes the
+  modal; a 422 re-renders the form inside it.
+- `ModalResponses` (`app/controllers/concerns/`) holds `modal_frame_request?`,
+  `modal_submission?` and `modal_flash`.
+
+Anything initialised on `turbo:load` will not run for content fetched into a
+frame — hook `turbo:frame-load` as well (see `wireFancyColorInputs` in
+`application.js`). Stimulus controllers connect normally either way.
+
+Type records (`TeamType`) are picked with `tag_select_controller.js`: existing
+records render as pills, and a name typed inline is created with its parent in
+one submission via a `new_<type>_name` virtual attribute. Permit that attribute
+only when the current user is allowed to create the type on its own.
+
 ## Settings system
 
 Runtime settings are stored in a PStore file (`storage/settings.pstore`), not in

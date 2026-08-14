@@ -8,7 +8,7 @@
     <%= f.input :color, as: :fancy_color %>
   </div>
   <div class="col-md-6">
-    <%= f.association :team_type, include_blank: false %>
+    <%= render "teams/team_type_field", f: f %>
     <%= f.input :join_permission, collection: Team.join_permissions.keys, label_method: :titleize, include_blank: false %>
   </div>
   <div class="col-md-12">
