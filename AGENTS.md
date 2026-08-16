@@ -23,6 +23,15 @@ bin/dev                       # foreman: web + CSS watcher + SolidQueue worker
 `bin/dev` uses `Procfile.dev`. Do not run `rails server` alone — the CSS watcher and
 background worker will be missing.
 
+Ruby and Node versions live in `.ruby-version` / `.node-version`, mirrored in
+`.tool-versions`. CI reads `.ruby-version`, so that file is the authority — keep
+`.tool-versions` in step with it.
+
+Development and test connections set `gssencmode: disable` (`config/database.yml`).
+The precompiled `pg` gem bundles a libpq built with GSSAPI, and on macOS probing
+for credentials loads the system Kerberos frameworks, which segfaults any process
+SolidQueue's supervisor forks. Without it `bin/dev` crash-loops the worker.
+
 ## Key commands
 
 ```bash
