@@ -2,17 +2,18 @@
     remove a whole grid cell. %>
 <div class="col-12 col-sm-6 col-xl-4" id="<%= dom_id team %>">
   <div class="card team-card">
-    <div class="card-header fs-5 text-break" style="background-color: <%= team.display_color %>;">
-      <%= link_to team, style: "color: #{contrasting_color(team.display_color)}", data: { turbo_frame: "team_modal" } do %>
-        <%= i team.identifier_icon %> <%= team.name %>
+    <div class="card-header team-card-header" style="background-color: <%= team.display_color %>; color: <%= contrasting_color(team.display_color) %>;">
+      <%= link_to team, class: "team-card-title text-break", style: "color: inherit", data: { turbo_frame: "team_modal" } do %>
+        <%= i team.identifier_icon %>
+        <span><%= team.name %></span>
       <% end %>
     </div>
 
-    <div class="card-body">
-      <div class="badge-container mb-2">
-        <span class="badge bg-secondary"><%= team.team_type.name %></span>
-        <span class="badge bg-secondary" title="Members"><%= i "users" %> <%= team.descendant_people.count %></span>
-        <span class="badge bg-secondary" title="Managers"><%= i "user-tie" %> <%= team.all_managers_and_admins.count %></span>
+    <div class="card-body team-card-body">
+      <div class="team-card-meta">
+        <span class="badge team-card-type"><%= team.team_type.name %></span>
+        <span class="team-card-stat"><%= i "users" %> <%= pluralize team.descendant_people.count, "member" %></span>
+        <span class="team-card-stat"><%= i "user-tie" %> <%= pluralize team.all_managers_and_admins.count, team.team_type.manager_title %></span>
       </div>
 
       <% if team.description.present? %>
@@ -20,17 +21,18 @@
       <% end %>
     </div>
 
-    <div class="card-footer">
-      <small class="fw-bold"><%= pluralize team.managers.count, team.team_type.manager_title %></small>
-      <div class="d-flex flex-row align-items-center flex-wrap">
-        <% team.managers.order(display_name: :asc).each do |person| %>
-          <div class="pe-1 py-1">
+    <%# Only rendered when there is something to show — an empty avatar strip
+        left every manager-less card with a stray band of whitespace. %>
+    <% if team.managers.any? %>
+      <div class="card-footer team-card-footer">
+        <div class="team-card-avatars">
+          <% team.managers.order(display_name: :asc).each do |person| %>
             <%= link_to person, title: person.display_name, data: { turbo: false } do %>
               <%= image_tag get_avatar_url_64(person.avatar), class: "person-img team-avatar" %>
             <% end %>
-          </div>
-        <% end %>
+          <% end %>
+        </div>
       </div>
-    </div>
+    <% end %>
   </div>
 </div>

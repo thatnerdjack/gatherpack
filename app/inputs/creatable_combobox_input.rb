@@ -19,4 +19,29 @@ class CreatableComboboxInput < SimpleForm::Inputs::Base
       dialog_label: @options.fetch(:dialog_label) { raw_label_text },
       **html_options
   end
+
+  private
+
+  # simple_form only links an association's errors to a field when the input was
+  # built by `f.association`; this one takes the foreign key directly. Without
+  # this, `belongs_to`'s "must exist" lands on :team_type and the :team_type_id
+  # field is never flagged, so submitting with no team type chosen fails
+  # silently as far as the form is concerned.
+  def association_reflection
+    return @association_reflection if defined?(@association_reflection)
+
+    name = attribute_name.to_s.delete_suffix("_id")
+    @association_reflection =
+      if name == attribute_name.to_s then nil
+      else object.class.try(:reflect_on_association, name.to_sym)
+      end
+  end
+
+  def errors_on_association
+    association_reflection ? object.errors[association_reflection.name] : []
+  end
+
+  def full_errors_on_association
+    association_reflection ? object.errors.full_messages_for(association_reflection.name) : []
+  end
 end

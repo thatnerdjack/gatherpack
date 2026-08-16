@@ -52,7 +52,7 @@ class TeamsController < InternalController
 
   # GET /teams/new
   def new
-    @team = authorize Team.new
+    @team = authorize Team.new(color: Team::DEFAULT_COLOR)
     render partial: "teams/modal_form", locals: { team: @team } if modal_frame_request?(MODAL_FRAME)
   end
 

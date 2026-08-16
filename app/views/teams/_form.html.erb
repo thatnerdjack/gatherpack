@@ -12,7 +12,9 @@
   <div class="col-md-6">
     <%# Picks an existing team type, or names a new one that is created with the
         team — but only for people allowed to create team types on their own. %>
-    <%= f.input :team_type_id, as: :creatable_combobox, label: "Team Type",
+    <%# `required` is explicit because the validation lives on the association,
+        not on the foreign key this field posts. %>
+    <%= f.input :team_type_id, as: :creatable_combobox, label: "Team Type", required: true,
           collection: TeamType.order(name: :asc),
           name_when_new: ("team[new_team_type_name]" if may_add_team_types),
           hint: ("Type a name that isn't listed to create it." if may_add_team_types),

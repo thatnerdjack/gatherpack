@@ -4,23 +4,86 @@
 .team-card {
   height: 100%;
   margin: 0 !important;
+  display: flex;
+  flex-direction: column;
 }
 
-// `.person-img` only sets an aspect ratio; every caller sizes it. The card
-// footer and the modal both lay avatars out with flex-wrap rather than a grid,
-// so they need an explicit one.
-.team-avatar {
-  width: 2.5rem;
-  height: 2.5rem;
+.team-card-header {
+  padding: 0.625rem 1rem;
+  border-bottom: none;
+}
+
+.team-card-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 1.125rem;
+  line-height: 1.3;
+  text-decoration: none;
+
+  &:hover span {
+    text-decoration: underline;
+  }
+}
+
+.team-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+}
+
+.team-card-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.375rem 0.75rem;
+}
+
+.team-card-type {
+  background-color: color-mix(in srgb, var(--pair-b-bg), transparent 82%);
+  color: var(--card-fg);
+  border-radius: 10rem;
+  font-weight: 600;
+}
+
+.team-card-stat {
+  font-size: 0.8125rem;
+  opacity: 0.75;
+  white-space: nowrap;
 }
 
 .team-card-description {
+  font-size: 0.9375rem;
+  opacity: 0.85;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   overflow: hidden;
 
   > :last-child {
     margin-bottom: 0;
   }
+}
+
+.team-card-footer {
+  margin-top: auto;
+  padding: 0.625rem 1rem;
+  background-color: transparent;
+  border-top: thin solid color-mix(in srgb, var(--pair-c-bg), black 12%);
+}
+
+.team-card-avatars {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+// `.person-img` only sets an aspect ratio; every caller sizes it. The card
+// footer and the modal both lay avatars out with flex rather than a grid, so
+// they need an explicit size.
+.team-avatar {
+  width: 2rem;
+  height: 2rem;
 }

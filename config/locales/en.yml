@@ -32,3 +32,12 @@ en:
     attributes:
       variable:
         klass: "Type"
+    errors:
+      models:
+        team:
+          attributes:
+            team_type:
+              # `belongs_to`'s default reads "must exist", which in a picker
+              # that can also create types sounds like the typed name was
+              # rejected rather than that nothing was chosen.
+              required: "must be chosen"

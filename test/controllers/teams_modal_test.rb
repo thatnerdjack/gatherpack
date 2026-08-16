@@ -146,6 +146,18 @@ class TeamsModalTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame#team_modal", 1, "the modal re-renders in place with its errors"
   end
 
+  # The validation lives on the :team_type association, but the form posts
+  # :team_type_id, so without wiring the two together the field renders clean
+  # and only the summary at the top of the form says anything.
+  test "a blank team type is flagged on the field itself" do
+    post teams_url, params: { modal: "1", team: { name: "Typeless" } }
+
+    assert_response :unprocessable_entity
+    assert_select "input#team_team_type_id.is-invalid"
+    assert_select "input#team_team_type_id[aria-invalid=true]"
+    assert_select ".invalid-feedback", text: /Team type must be chosen/
+  end
+
   test "someone who cannot manage team types cannot create one through the picker" do
     manager = User.create!(email: "modal-manager@example.com", password: "password123")
     person = Person.create!(user: manager, first_name: "Mo", last_name: "Manager", display_name: "Mo Manager")
