@@ -23,6 +23,15 @@ bin/dev                       # foreman: web + CSS watcher + SolidQueue worker
 `bin/dev` uses `Procfile.dev`. Do not run `rails server` alone — the CSS watcher and
 background worker will be missing.
 
+Ruby and Node versions live in `.ruby-version` / `.node-version`, mirrored in
+`.tool-versions`. CI reads `.ruby-version`, so that file is the authority — keep
+`.tool-versions` in step with it.
+
+Development and test connections set `gssencmode: disable` (`config/database.yml`).
+The precompiled `pg` gem bundles a libpq built with GSSAPI, and on macOS probing
+for credentials loads the system Kerberos frameworks, which segfaults any process
+SolidQueue's supervisor forks. Without it `bin/dev` crash-loops the worker.
+
 ## Key commands
 
 ```bash
@@ -111,6 +120,43 @@ bin/rails generate breadcrumb Foo           # breadcrumb config only
 ```
 
 Templates live in `lib/templates/`.
+
+## Remote modals
+
+Teams are created, viewed and edited from a modal on the index rather than from
+separate `new` / `show` / `edit` pages. The pieces:
+
+- `shared/_remote_modal` renders the modal shell around an empty turbo frame.
+  Put it on the index page once, outside the search results frame.
+- Any link with `data-turbo-frame="<frame_id>"` loads its response into that
+  frame, which opens the modal (`remote_modal_controller.js`). The frame is
+  emptied on close, so reopening always refetches.
+- The controller renders a modal partial when `modal_frame_request?(FRAME)` is
+  true and falls through to the normal template otherwise, so `/teams/new` and
+  the full team page still work for direct navigation and deep links.
+- Forms in the modal carry a hidden `modal=1`. When `modal_submission?` is true,
+  create/update/destroy answer with turbo streams that add, replace or remove
+  the card plus a flash, instead of redirecting. A successful submit closes the
+  modal; a 422 re-renders the form inside it.
+- `ModalResponses` (`app/controllers/concerns/`) holds `modal_frame_request?`,
+  `modal_submission?` and `modal_flash`.
+
+Anything initialised on `turbo:load` will not run for content fetched into a
+frame — hook `turbo:frame-load` as well (see `wireFancyColorInputs` in
+`application.js`). Stimulus controllers connect normally either way.
+
+Type records (`TeamType`) are picked with the `creatable_combobox` simple_form
+input, which wraps `hotwire_combobox`. Typing a name that matches nothing
+switches the hidden field from the foreign key to `name_when_new`, and a
+`new_<type>_name` virtual attribute on the model builds the record so
+`belongs_to` autosaves it with its parent — nothing is created if the parent
+fails validation. Pass `name_when_new` only when the current user is allowed to
+create the type on its own, and permit the matching attribute in the controller
+and policy on the same condition.
+
+Index pages lay their records out as a grid (`<div id="teams" class="row g-3">`).
+The grid cell is part of the record partial, not the page, so a turbo stream can
+add, replace or remove a whole cell.
 
 ## Settings system
 

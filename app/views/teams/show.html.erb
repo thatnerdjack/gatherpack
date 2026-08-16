@@ -4,7 +4,7 @@
   <div class="col-12 col-lg-6">
     <div class="card mb-3">
       <div class="card-header">
-        <h1><%= i @team.team_type.icon %> <%= @team.identifier_name %></h1>
+        <h1><%= i @team.identifier_icon %> <%= @team.identifier_name %></h1>
       </div>
       <div class="card-body">
         <div class="mb-3"><%= md @team.description %></div>
@@ -195,7 +195,7 @@
                    url: event_path(event),
                    backgroundColor: bg,
                    textColor: Color::RGB.by_hex(bg).brightness > 0.5 ? "#6d6753" : "#fffdf6",
-                   extendedProps: { icon: "fa-" + (event.team&.team_type&.icon || "star") }
+                   extendedProps: { icon: "fa-" + (event.team&.identifier_icon || "star") }
                  }
                }.to_json %>">
             <div id="calendar" data-turbo="false"></div>

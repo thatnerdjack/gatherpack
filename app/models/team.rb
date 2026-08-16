@@ -19,6 +19,17 @@ class Team < ApplicationRecord
   has_many :questions
   enum :join_permission, { added_by_admin: 0, added_by_manager: 1, added_by_current_member: 2, has_account: 3, requires_approval: 4 }
 
+  # The colour picker starts every new team at #000000 otherwise, which makes
+  # for a wall of black card headers. Deliberately not the greige the page is
+  # painted in, or an unstyled card reads as having no header at all.
+  DEFAULT_COLOR = "#403a22"
+
+  # Set by the team type tag picker when the user types a type that doesn't
+  # exist yet, so a team and its type can be created in a single submission.
+  attr_accessor :new_team_type_name
+
+  before_validation :resolve_new_team_type
+
   validates :name, presence: true
   validates :join_permission, inclusion: { in: join_permissions.keys }
 
@@ -110,5 +121,22 @@ class Team < ApplicationRecord
 
   def identifier_icon
     "people-group"
+  end
+
+  # Colour is optional, but everything that paints a team with it needs
+  # something parseable to contrast against.
+  def display_color
+    color.presence || DEFAULT_COLOR
+  end
+
+  private
+
+  # The new type is only built here — `belongs_to` autosaves it once the team
+  # itself is valid, so a team that fails validation leaves nothing behind.
+  def resolve_new_team_type
+    name = new_team_type_name.to_s.strip
+    return if name.blank?
+
+    self.team_type = TeamType.where("lower(name) = ?", name.downcase).first || TeamType.new(name: name)
   end
 end

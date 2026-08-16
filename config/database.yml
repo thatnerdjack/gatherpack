@@ -9,21 +9,33 @@ default: &default
   password: <%= ENV.fetch("DATABASE_PASSWORD") { 'password' } %>
   host: <%= ENV.fetch("DATABASE_HOST") { 'localhost' } %>
 
+# LOCAL CONNECTION CONFIGURATION
+# The precompiled `pg` gem bundles a libpq built with GSSAPI, and every connect
+# probes for GSS credentials before deciding whether to negotiate encryption. On
+# macOS that probe loads the system Kerberos frameworks, which is fatal in a
+# process forked by SolidQueue's supervisor — the child segfaults in
+# PG::Connection#connect_start before it can register itself, and `bin/dev`
+# crash-loops. Local databases never need GSSAPI, so turn it off. Production is
+# left alone in case a hosted PostgreSQL wants it.
+local: &local
+  <<: *default
+  gssencmode: disable
+
 development:
   primary:
-    <<: *default
+    <<: *local
     database: gatherpack_development
   versions:
-    <<: *default
+    <<: *local
     database: gatherpack_development_versions
     migrations_paths: db/versions_migrate
 
 test:
   primary:
-    <<: *default
+    <<: *local
     database: gatherpack_test
   versions:
-    <<: *default
+    <<: *local
     database: gatherpack_test_versions
     migrations_paths: db/versions_migrate
 

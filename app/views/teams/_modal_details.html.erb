@@ -1,0 +1,58 @@
+<%= turbo_frame_tag "team_modal" do %>
+  <div class="modal-header" style="background-color: <%= team.display_color %>; color: <%= contrasting_color(team.display_color) %>;">
+    <h2 class="modal-title h4"><%= i team.identifier_icon %> <%= team.name %></h2>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  </div>
+
+  <div class="modal-body">
+    <div class="badge-container mb-3">
+      <span class="badge bg-secondary"><%= team.team_type.name %></span>
+      <span class="badge bg-secondary" title="Members"><%= i "users" %> <%= team.descendant_people.count %></span>
+      <span class="badge bg-secondary" title="Managers"><%= i "user-tie" %> <%= team.all_managers_and_admins.count %></span>
+      <span class="badge bg-secondary" title="Who can join"><%= team.join_permission.titleize %></span>
+    </div>
+
+    <% if team.description.present? %>
+      <div class="mb-3"><%= md team.description %></div>
+    <% end %>
+
+    <h3 class="h6"><%= team.team_type.manager_title.pluralize(team.managers.count) %></h3>
+    <div class="d-flex flex-row align-items-center flex-wrap mb-3">
+      <% if team.managers.any? %>
+        <% team.managers.order(display_name: :asc).each do |person| %>
+          <div class="p-1">
+            <%= link_to person, title: person.display_name, data: { turbo_frame: "_top" } do %>
+              <%= image_tag get_avatar_url_64(person.avatar), class: "person-img team-avatar" %>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-muted mb-0">None yet.</p>
+      <% end %>
+    </div>
+
+    <% if team.parent.present? %>
+      <p class="mb-1"><b>Part Of:</b> <%= link_to as_badge(team.parent), team.parent, data: { turbo_frame: "_top" } %></p>
+    <% end %>
+
+    <% children = policy_scope(team.children).order(name: :asc) %>
+    <% if children.any? %>
+      <p class="mb-1"><b>Sub-Teams:</b></p>
+      <div class="badge-container">
+        <% children.each do |child| %>
+          <%= link_to as_badge(child), child, data: { turbo_frame: "_top" } %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="modal-footer">
+    <%= link_to "Open Team Page", team, class: "btn btn-outline-secondary me-auto", data: { turbo_frame: "_top", turbo: false } %>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <% if policy(team).edit? %>
+      <%= link_to edit_team_path(team), class: "btn btn-warning" do %>
+        <%= i "pen-to-square" %> Edit
+      <% end %>
+    <% end %>
+  </div>
+<% end %>

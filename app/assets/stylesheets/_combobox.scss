@@ -303,3 +303,14 @@
     background-color: transparent;
   }
 }
+// A combobox renders its input inside a fieldset, so Bootstrap's
+// `.is-invalid ~ .invalid-feedback` sibling selector can never reach the
+// message simple_form places after the fieldset, and the control itself never
+// picks up the invalid border. Bridge both across the wrapper.
+.hw-combobox:has(.is-invalid) {
+  border-color: var(--bs-form-invalid-border-color, #dc3545);
+}
+
+.hw-combobox + .invalid-feedback {
+  display: block;
+}

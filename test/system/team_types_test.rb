@@ -14,7 +14,6 @@ class TeamTypesTest < ApplicationSystemTestCase
     visit team_types_url
     click_on "New team type"
 
-    fill_in "Icon", with: @team_type.icon
     fill_in "Name", with: @team_type.name
     click_on "Create Team type"
 
@@ -26,7 +25,6 @@ class TeamTypesTest < ApplicationSystemTestCase
     visit team_type_url(@team_type)
     click_on "Edit this team type", match: :first
 
-    fill_in "Icon", with: @team_type.icon
     fill_in "Name", with: @team_type.name
     click_on "Update Team type"
 
