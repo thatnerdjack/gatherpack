@@ -23,6 +23,10 @@ class TeamPolicy < ApplicationPolicy
     has_perms
   end
 
+  def manage_members?
+    has_perms
+  end
+
   def permitted_attributes_for_update
     base = [ :name, :color, :team_type_id, :description ]
     # The team type tag picker can name a type that doesn't exist yet, but only

@@ -1,14 +1,24 @@
 # syntax=docker/dockerfile:1
 # check=error=true
 
-# This Dockerfile is designed for production, not development. Use with Kamal or build'n'run by hand:
-# docker build -t testapp .
-# docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name testapp testapp
+# This Dockerfile is designed for production, not development. Images are built and
+# published by .github/workflows/build.yml. To run one, use
+# docker-compose.production.yml — see docs/self-hosting.md.
+#
+# The entrypoint runs db:prepare on boot, so a container started by hand still
+# needs a reachable PostgreSQL server; there is no standalone mode.
+#
+# docker build -t gatherpack .
+# docker run -d -p 3000:3000 --name gatherpack \
+#   -e SECRET_KEY_BASE=<openssl rand -hex 64> \
+#   -e ROOT_URL=http://localhost:3000 \
+#   -e DATABASE_HOST=<host> -e DATABASE_USERNAME=<user> -e DATABASE_PASSWORD=<password> \
+#   gatherpack
 
 # For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
-ARG RUBY_VERSION=4.0.2
+ARG RUBY_VERSION=4.0.6
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
 # Rails app lives here
@@ -23,7 +33,7 @@ RUN apt-get update -qq && \
 ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development"
+    BUNDLE_WITHOUT="development:test"
 
 # Throw-away build stage to reduce size of final image
 FROM base AS build
@@ -34,7 +44,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install JavaScript dependencies
-ARG NODE_VERSION=20.18.0
+ARG NODE_VERSION=24.19.0
 ARG YARN_VERSION=1.22.22
 ENV PATH=/usr/local/node/bin:$PATH
 RUN curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz -C /tmp/ && \
@@ -80,5 +90,8 @@ USER 1000:1000
 # Entrypoint prepares the database.
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
-EXPOSE 80
+HEALTHCHECK --interval=15s --timeout=5s --start-period=120s --retries=5 \
+  CMD curl -fsS http://127.0.0.1:${PORT:-3000}/up || exit 1
+
+EXPOSE 3000
 CMD ["./bin/rails", "server"]
