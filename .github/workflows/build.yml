@@ -3,6 +3,7 @@ name: Build & Publish Image
 # Builds the production image and pushes it to the GitHub Container Registry.
 #
 #   push to main    -> :main, :edge, :sha-<commit>
+#   push to dev     -> :dev, :sha-<commit>
 #   tag v1.2.3      -> :1.2.3, :1.2, :1, :latest
 #   tag v1.2.3-rc.1 -> :1.2.3-rc.1  (prereleases never take :latest)
 #
