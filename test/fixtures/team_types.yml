@@ -1,7 +1,5 @@
 one:
-  name: Department
-  icon: building
+  name: MyString
 
 two:
-  name: Project
-  icon: folder
+  name: MyString

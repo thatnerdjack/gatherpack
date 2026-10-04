@@ -1,0 +1,33 @@
+<%= turbo_frame_tag "team_modal" do %>
+  <div class="modal-header">
+    <h2 class="modal-title h4">
+      <%= team.new_record? ? "New Team" : "Editing #{team.name}" %>
+    </h2>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  </div>
+
+  <%# The footer sits outside the form so the delete button can have a form of
+      its own; the submit button reaches back in by id. %>
+  <%= simple_form_for(team, html: { id: "team-modal-form", class: "modal-form" }) do |f| %>
+    <%# Tells the controller to answer with turbo streams that refresh the card
+        in place, rather than redirecting to the team's page. %>
+    <%= hidden_field_tag :modal, "1" %>
+    <div class="modal-body">
+      <%= render "teams/form", f: f %>
+    </div>
+  <% end %>
+
+  <div class="modal-footer">
+    <% if !team.new_record? && policy(team).destroy? %>
+      <%= button_to "Delete", team_path(team, modal: "1"), method: :delete, class: "btn btn-danger", form_class: "me-auto", form: { data: { turbo_confirm: "Are you sure you want to delete #{team.name}?" } } %>
+    <% end %>
+    <% if team.new_record? %>
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    <% else %>
+      <%= link_to "Cancel", team_path(team), class: "btn btn-secondary" %>
+    <% end %>
+    <button type="submit" form="team-modal-form" class="btn btn-primary">
+      <%= team.new_record? ? "Create Team" : "Save Changes" %>
+    </button>
+  </div>
+<% end %>

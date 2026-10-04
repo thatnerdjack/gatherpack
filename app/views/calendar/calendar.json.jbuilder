@@ -10,7 +10,7 @@ json.array! @events do |event|
   json.textColor colors[:text]
 
   json.extendedProps do
-    json.icon "fa-" + (event.team&.team_type&.icon || "star")
+    json.icon "fa-" + (event.team&.identifier_icon || "star")
   end
 end if @events
 

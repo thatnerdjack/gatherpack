@@ -1,6 +1,8 @@
 <%= f.error_notification %>
 <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
 
+<% may_add_team_types = policy(TeamType).create? %>
+
 <div class="row">
   <div class="col-md-6">
     <%= f.input :name %>
@@ -8,7 +10,15 @@
     <%= f.input :color, as: :fancy_color %>
   </div>
   <div class="col-md-6">
-    <%= f.association :team_type, include_blank: false %>
+    <%# Picks an existing team type, or names a new one that is created with the
+        team — but only for people allowed to create team types on their own. %>
+    <%# `required` is explicit because the validation lives on the association,
+        not on the foreign key this field posts. %>
+    <%= f.input :team_type_id, as: :creatable_combobox, label: "Team Type", required: true,
+          collection: TeamType.order(name: :asc),
+          name_when_new: ("team[new_team_type_name]" if may_add_team_types),
+          hint: ("Type a name that isn't listed to create it." if may_add_team_types),
+          input_html: { placeholder: may_add_team_types ? "Search or add a team type…" : "Search team types…" } %>
     <%= f.input :join_permission, collection: Team.join_permissions.keys, label_method: :titleize, include_blank: false %>
   </div>
   <div class="col-md-12">

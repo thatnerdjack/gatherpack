@@ -43,17 +43,12 @@
             <%= breadcrumbs display_single_fragment: true, separator: "&nbsp&rsaquo;&nbsp", style: :inline, class: "breadcrumb", link_class: "breadcrumb-link", current_class: "breadcrumb-current" %>
           </div>
 
-          <% if flash.any? %>
-            <div class="my-3">
-              <% flash.each do |type, value| %>
-                <div class="alert <%= flash_to_class(type) %> alert-dismissible fade show" role="alert">
-                  <i class="bi flex-shrink-0 me-2 fa-solid <%= flash_to_icon(type) %>"></i>
-                  <%= value %>
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-              <% end %>
-            </div>
-          <% end %>
+          <%# Always rendered so turbo streams have somewhere to prepend to. %>
+          <div id="flash-messages" class="mb-3">
+            <% flash.each do |type, value| %>
+              <%= render "layouts/flash", type: type, message: value %>
+            <% end %>
+          </div>
 
           <% breadcrumb :root %>
 

@@ -1,0 +1,17 @@
+// A remote modal loads its header/body/footer into a turbo frame nested inside
+// .modal-content, and the body is wrapped in a form so the footer can hold a
+// delete button with a form of its own. Both wrappers have to be transparent to
+// Bootstrap's flex layout, or .modal-dialog-scrollable stops sizing the body.
+.modal-content > turbo-frame {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: 100%;
+}
+
+.modal-content > turbo-frame > .modal-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}

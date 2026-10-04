@@ -4,7 +4,7 @@
   <div class="col-12 col-lg-6">
     <div class="card mb-3">
       <div class="card-header">
-        <h1><%= i @team.team_type.icon %> <%= @team.identifier_name %></h1>
+        <h1><%= i @team.identifier_icon %> <%= @team.identifier_name %></h1>
       </div>
       <div class="card-body">
         <div class="mb-3"><%= md @team.description %></div>
@@ -39,7 +39,7 @@
             <div class="card mb-3" id="<%= dom_id announcement %>">
               <div class="card-header">
                 <h3>
-                  <%= link_to i(@team.team_type.icon), @team, class: "badge rounded-pill", style: "background-color:#{@team.color};color:#{contrasting_color(@team.color)}", "data-turbo": "false", title: "Posted in #{@team.name}" %>
+                  <%= link_to i(@team.identifier_icon), @team, class: "badge rounded-pill", style: "background-color:#{@team.color};color:#{contrasting_color(@team.color)}", "data-turbo": "false", title: "Posted in #{@team.name}" %>
                   <%= announcement.title %>
                 </h3>
               </div>

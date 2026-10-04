@@ -8,7 +8,7 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-team_type = TeamType.find_or_create_by!(name: "Test Team Type", icon: "address-book")
+team_type = TeamType.find_or_create_by!(name: "Test Team Type")
 event_type = EventType.find_or_create_by!(name: "Test Event Type")
 badge_type = BadgeType.find_or_create_by!(name: "Test Badge Type")
 users = []

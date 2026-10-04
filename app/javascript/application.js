@@ -11,17 +11,21 @@ import "@rails/actiontext"
 import "font_awesome"
 import "code_editor"
 
-document.addEventListener("turbo:load", ev => {
-    document.querySelectorAll('.fancy-color-container input[type="color"]').forEach(elem => {
+const wireFancyColorInputs = root => {
+    root.querySelectorAll('.fancy-color-container input[type="color"]').forEach(elem => {
         elem.addEventListener("input", ev => {
             ev.target.parentElement.nextElementSibling.firstChild.value = ev.target.value
         });
     });
 
-    document.querySelectorAll('.fancy-color-container input[type="text"]').forEach(elem => {
+    root.querySelectorAll('.fancy-color-container input[type="text"]').forEach(elem => {
         elem.addEventListener("input", ev => {
             ev.target.parentElement.previousElementSibling.firstChild.value = ev.target.value
         });
         elem.value = elem.parentElement.previousElementSibling.firstChild.value
     });
-})
+}
+
+document.addEventListener("turbo:load", ev => wireFancyColorInputs(document))
+// Forms fetched into a turbo frame — remote modals — never fire turbo:load.
+document.addEventListener("turbo:frame-load", ev => wireFancyColorInputs(ev.target))
